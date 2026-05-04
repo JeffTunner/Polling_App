@@ -1,5 +1,6 @@
 package com.example.voting_app.service;
 
+import com.example.voting_app.model.OptionVote;
 import com.example.voting_app.model.Poll;
 import com.example.voting_app.repository.PollRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,5 +26,21 @@ public class PollService {
 
     public Optional<Poll> getPollById(Long id) {
         return pollRepository.findById(id);
+    }
+
+    public void vote(Long pollId, int optionIndex) {
+        Poll poll = pollRepository.findById(pollId).orElseThrow(() -> new RuntimeException("Poll not found"));
+
+        List<OptionVote> options = poll.getOptions();
+
+        if(optionIndex < 0 || optionIndex >= options.size()) {
+            throw new IllegalArgumentException("Invalid option index");
+        }
+
+        OptionVote selectedOption = options.get(optionIndex);
+
+        selectedOption.setVoteCount(selectedOption.getVoteCount() + 1);
+
+        pollRepository.save(poll);
     }
 }
